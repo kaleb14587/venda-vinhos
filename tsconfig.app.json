@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "include": [
+    "./resource/js/src/**/*.ts",
+
+  ],
+  "exclude": [
+    "./resource/js/src/test.ts",
+    "./resource/js/src/**/*.spec.ts"
+  ]
+}

@@ -1,0 +1,71 @@
+version: '3'
+
+services:
+
+    nginx:
+      image: nginx:latest
+      build:
+        context: .
+        args:
+          - "BUILD_ARGUMENT_ENV=dev"
+        dockerfile: ./docker/nginx/Dockerfile
+      container_name: nginxvv
+      restart: always
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - .:/var/www/html:ro
+      depends_on:
+        - laravel
+      links:
+        - laravel
+
+    laravel:
+      image: laravel:latest
+      build:
+        context: .
+        args:
+          - "BUILD_ARGUMENT_ENV=dev"
+          - "BUILD_ARGUMENT_DEBUG_ENABLED=false"
+        dockerfile: ./Dockerfile
+      container_name: laravelvv
+      expose:
+        - "9000"
+      volumes:
+        - .:/var/www/html
+      depends_on:
+        - db
+      links:
+        - db
+
+    supervisord:
+      image: laravel:latest
+      build:
+        context: .
+        args:
+          - "BUILD_ARGUMENT_ENV=dev"
+          - "BUILD_ARGUMENT_DEBUG_ENABLED=false"
+        dockerfile: ./Dockerfile
+      container_name: supervisordvv
+      user: root
+      depends_on:
+        - db
+      links:
+        - db
+      command: ["/usr/bin/supervisord"]
+
+    db:
+      image: mysql:5.7
+      container_name: db
+      environment:
+        - MYSQL_ROOT_PASSWORD=secret
+        - MYSQL_DATABASE=laravel
+      ports:
+        - "3306:3306"
+      volumes:
+        - venda-vinhos:/var/lib/mysql
+        - ./docker/dev/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+volumes:
+  venda-vinhos:
